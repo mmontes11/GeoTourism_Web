@@ -3,9 +3,9 @@
 define([
     '../module'
 ], function (module) {
-    module.controller('PlacesCtrl', ['$scope', '$q', 'FeatureService', 'Cities', 'City', 'TIPs', 'TIP', 'User', "Stats",
+    module.controller('PlacesCtrl', ['$scope', '$q', '$timeout', 'FeatureService', 'Cities', 'City', 'TIPs', 'TIP', 'User', "Stats",
         'FBStorageService', 'AuthAdminService', 'AuthFBService', 'NotificationService', 'DialogService', 'ValidationService',
-        function ($scope, $q, FeatureService, Cities, City, TIPs, TIP, User, Stats,
+        function ($scope, $q, $timeout, FeatureService, Cities, City, TIPs, TIP, User, Stats,
                   FBStorageService, AuthAdminService, AuthFBService, NotificationService, DialogService, ValidationService) {
 
             $scope.isAuthenticated = function () {
@@ -82,11 +82,17 @@ define([
             $scope.$on('socialChips.selectedFriends', function (event, selectedFriends) {
                 $scope.selectedFriends = selectedFriends;
             });
+
+            var initializing = true;
             $scope.$watch('favouritedBy', function () {
-                requestFeatures();
+                if (initializing) {
+                    $timeout(function () { initializing = false; });
+                } else { requestFeatures(); }
             });
             $scope.$watchCollection('selectedFriends', function () {
-                requestFeatures();
+                if (initializing) {
+                    $timeout(function () { initializing = false; });
+                } else { requestFeatures(); }
             });
 
             $scope.$watch('selectedFriends.length || selectedCities.length  || selectedTypes.length || favouritedBy', function () {
